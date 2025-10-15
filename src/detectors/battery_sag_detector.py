@@ -20,7 +20,7 @@ class BatterySagDetector(BaseDetector):
         
     def detect(self, datasets: Dict[str, pd.DataFrame], 
                phase_map: Optional[Dict[float, FlightPhase]] = None) -> List[BatterySagInsight]:
-        """Detect battery voltage sag events"""
+        """Detect battery voltage sag events and critical battery conditions"""
         
         if 'battery_status' not in datasets:
             print("Warning: Battery data not available for sag detection")
@@ -38,11 +38,19 @@ class BatterySagDetector(BaseDetector):
         if battery_data is None or len(battery_data) == 0:
             return []
         
-        # Detect sag events
-        sag_events = self._detect_sag_events(battery_data)
+        insights = []
         
-        # Convert to insights
-        insights = self._events_to_insights(sag_events, phase_map)
+        # Method 1: Detect voltage sag under load (original)
+        sag_events = self._detect_sag_events(battery_data)
+        insights.extend(self._events_to_insights(sag_events, phase_map))
+        
+        # Method 2: Detect critically low absolute voltage
+        low_voltage_events = self._detect_low_voltage(battery_df)
+        insights.extend(self._low_voltage_to_insights(low_voltage_events, phase_map))
+        
+        # Method 3: Detect voltage instability (rapid fluctuations)
+        instability_events = self._detect_voltage_instability(battery_df)
+        insights.extend(self._instability_to_insights(instability_events, phase_map))
         
         return insights
     
@@ -178,6 +186,177 @@ class BatterySagDetector(BaseDetector):
         
         merged.append(current)
         return merged
+    
+    def _detect_low_voltage(self, battery_df: pd.DataFrame) -> List[Dict]:
+        """Detect critically low absolute voltage (emergency conditions)"""
+        
+        if 'voltage_v' not in battery_df.columns:
+            return []
+        
+        events = []
+        
+        # Detect different severity levels of low voltage
+        # Assuming 4S LiPo: nominal 14.8V, low 13.2V (3.3V/cell), critical 12.4V (3.1V/cell)
+        critical_threshold = 13.0  # Critical low voltage
+        warn_threshold = 14.0      # Warning low voltage
+        
+        battery_data = battery_df[['timestamp', 'voltage_v']].copy()
+        
+        # Critical voltage periods
+        critical_mask = battery_data['voltage_v'] < critical_threshold
+        critical_periods = self.data_processor.detect_bursts(critical_mask, min_duration=0.5)
+        
+        for start_time, end_time in critical_periods:
+            mask = ((battery_data['timestamp'] >= start_time) & 
+                   (battery_data['timestamp'] <= end_time))
+            period_data = battery_data[mask]
+            
+            if len(period_data) == 0:
+                continue
+            
+            event = {
+                't_start': start_time,
+                't_end': end_time,
+                'duration': end_time - start_time,
+                'voltage_min': period_data['voltage_v'].min(),
+                'voltage_mean': period_data['voltage_v'].mean(),
+                'severity': 'critical',
+                'type': 'low_voltage'
+            }
+            events.append(event)
+        
+        # Warning voltage periods (only if not already critical)
+        warn_mask = (battery_data['voltage_v'] < warn_threshold) & (battery_data['voltage_v'] >= critical_threshold)
+        warn_periods = self.data_processor.detect_bursts(warn_mask, min_duration=1.0)
+        
+        for start_time, end_time in warn_periods:
+            mask = ((battery_data['timestamp'] >= start_time) & 
+                   (battery_data['timestamp'] <= end_time))
+            period_data = battery_data[mask]
+            
+            if len(period_data) == 0:
+                continue
+            
+            event = {
+                't_start': start_time,
+                't_end': end_time,
+                'duration': end_time - start_time,
+                'voltage_min': period_data['voltage_v'].min(),
+                'voltage_mean': period_data['voltage_v'].mean(),
+                'severity': 'warn',
+                'type': 'low_voltage'
+            }
+            events.append(event)
+        
+        return events
+    
+    def _detect_voltage_instability(self, battery_df: pd.DataFrame) -> List[Dict]:
+        """Detect rapid voltage fluctuations (connection issues, damaged cells)"""
+        
+        if 'voltage_v' not in battery_df.columns or len(battery_df) < 10:
+            return []
+        
+        battery_data = battery_df[['timestamp', 'voltage_v']].copy()
+        
+        # Compute voltage change rate (dV/dt)
+        battery_data['voltage_diff'] = battery_data['voltage_v'].diff().abs()
+        battery_data['timestamp_diff'] = battery_data['timestamp'].diff()
+        battery_data['voltage_rate'] = battery_data['voltage_diff'] / battery_data['timestamp_diff'].replace(0, np.nan)
+        
+        # Flag rapid changes (>2V/s is abnormal for battery voltage)
+        instability_threshold = 2.0  # V/s
+        unstable_mask = battery_data['voltage_rate'] > instability_threshold
+        
+        unstable_periods = self.data_processor.detect_bursts(unstable_mask, min_duration=0.5)
+        
+        events = []
+        for start_time, end_time in unstable_periods:
+            mask = ((battery_data['timestamp'] >= start_time) & 
+                   (battery_data['timestamp'] <= end_time))
+            period_data = battery_data[mask]
+            
+            if len(period_data) == 0:
+                continue
+            
+            event = {
+                't_start': start_time,
+                't_end': end_time,
+                'duration': end_time - start_time,
+                'max_rate': period_data['voltage_rate'].max(),
+                'voltage_swing': period_data['voltage_v'].max() - period_data['voltage_v'].min(),
+                'type': 'instability'
+            }
+            events.append(event)
+        
+        return events
+    
+    def _low_voltage_to_insights(self, events: List[Dict],
+                                  phase_map: Optional[Dict[float, FlightPhase]]) -> List[BatterySagInsight]:
+        """Convert low voltage events to insights"""
+        
+        insights = []
+        
+        for event in events:
+            mid_time = (event['t_start'] + event['t_end']) / 2
+            phase = self._get_phase_at_time(mid_time, phase_map)
+            
+            insight = BatterySagInsight(
+                id=self._generate_insight_id("batt_low"),
+                t_start=event['t_start'],
+                t_end=event['t_end'],
+                phase=phase,
+                severity=event['severity'],
+                text=f"Battery voltage critically low: {event['voltage_min']:.2f}V "
+                     f"(mean {event['voltage_mean']:.2f}V) for {event['duration']:.1f}s",
+                metrics={
+                    'v_min': round(event['voltage_min'], 2),
+                    'v_mean': round(event['voltage_mean'], 2),
+                    'duration_s': round(event['duration'], 1),
+                    'type': 'absolute_low'
+                }
+            )
+            
+            insights.append(insight)
+        
+        return insights
+    
+    def _instability_to_insights(self, events: List[Dict],
+                                  phase_map: Optional[Dict[float, FlightPhase]]) -> List[BatterySagInsight]:
+        """Convert voltage instability events to insights"""
+        
+        insights = []
+        
+        for event in events:
+            mid_time = (event['t_start'] + event['t_end']) / 2
+            phase = self._get_phase_at_time(mid_time, phase_map)
+            
+            # Severity based on rate
+            if event['max_rate'] > 5.0:
+                severity = 'critical'
+            elif event['max_rate'] > 3.0:
+                severity = 'warn'
+            else:
+                severity = 'info'
+            
+            insight = BatterySagInsight(
+                id=self._generate_insight_id("batt_unstable"),
+                t_start=event['t_start'],
+                t_end=event['t_end'],
+                phase=phase,
+                severity=severity,
+                text=f"Battery voltage unstable: {event['max_rate']:.1f}V/s rate, "
+                     f"{event['voltage_swing']:.2f}V swing - possible connection issue",
+                metrics={
+                    'max_rate_v_per_s': round(event['max_rate'], 1),
+                    'voltage_swing': round(event['voltage_swing'], 2),
+                    'duration_s': round(event['duration'], 1),
+                    'type': 'instability'
+                }
+            )
+            
+            insights.append(insight)
+        
+        return insights
     
     def _events_to_insights(self, events: List[Dict],
                            phase_map: Optional[Dict[float, FlightPhase]]) -> List[BatterySagInsight]:

@@ -1,44 +1,254 @@
-# SkySense ✈️
-🚁 **Production-Ready Flight Log Analysis System for PX4 Drones**
+# SkySense# SkySense# SkySense# SkySense ✈️
 
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![Phase Detection](https://img.shields.io/badge/phase_detection-validated-success.svg)]()
-[![Accuracy](https://img.shields.io/badge/accuracy->95%25-brightgreen.svg)]()
 
-SkySense is a sophisticated flight log analysis system designed specifically for PX4-based drones. It automatically detects and explains flight anomalies, performance issues, and provides actionable insights to improve flight safety and performance.
 
-**Key Achievements**:
-- ✅ **Validated Phase Detection**: 100% validation score on real flight logs
-- ✅ **PX4-Authoritative Logic**: Follows official PX4 best practices
-- ✅ **Production-Ready**: Comprehensive testing with real `.ulg` files
+An LLM-powered flight log analysis copilot for PX4 drones.
 
-## 🌟 Features
 
-### Core Insight Detection
-- **Flight Phase Segmentation**: ⭐ PX4-based detection of Idle/Takeoff/Hover/Cruise/Loiter/RTL/Land phases (>95% accuracy)
-- **Attitude Tracking Errors**: RMS-based detection of persistent control inaccuracy
-- **Rate Controller Saturation**: Detection of actuator/control limits causing wobbles
+
+## FeaturesAn LLM-powered flight log analysis copilot for PX4 drones.🚁 **AI-Powered Flight Log Analysis System for PX4 Drones**
+
+
+
+- **Smart Query Routing**: LLM classifies questions and routes to structured data or knowledge base
+
+- **Flight Log Analysis**: Automated detection of battery sag, motor issues, vibration, EKF anomalies
+
+- **Natural Language Interface**: Ask "what went wrong?" or "what is EKF?" in plain English## FeaturesAn LLM-powered flight log analysis copilot for PX4 drones.
+
+- **Hybrid Architecture**: Fast structured queries + contextual explanations
+
+- **Legal Knowledge Base**: Built from PX4 docs (CC BY 4.0) and curated content
+
+
+
+## Quick Start- **Smart Query Routing**: LLM classifies questions and routes to structured data or knowledge base[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+
+
+
+```bash- **Flight Log Analysis**: Automated detection of battery sag, motor issues, vibration, EKF anomalies
+
+# Install dependencies
+
+pip install -r requirements.txt- **Natural Language Interface**: Ask "what went wrong?" or "what is EKF?" in plain English## Features[![Phase Detection](https://img.shields.io/badge/phase_detection-validated-success.svg)]()
+
+
+
+# Set Groq API key- **Hybrid Architecture**: Fast structured queries + contextual explanations
+
+export GROQ_API_KEY="your_key_here"
+
+- **Legal Knowledge Base**: Built from PX4 docs (CC BY 4.0) and curated content[![Accuracy](https://img.shields.io/badge/accuracy->95%25-brightgreen.svg)]()
+
+# Analyze a flight log
+
+python main.py analyze ulogs/your_log.ulg
+
+
+
+# Launch interactive copilot## Quick Start- **Smart Query Routing**: LLM classifies questions and routes to structured data or knowledge base[![Copilot](https://img.shields.io/badge/copilot-powered_by_Groq-purple.svg)]()
+
+python main.py copilot ulogs/your_log.ulg
+
+```
+
+
+
+## CLI Usage```bash- **Flight Log Analysis**: Automated detection of battery sag, motor issues, vibration, EKF anomalies
+
+
+
+### Available Commands# Install dependencies
+
+
+
+```bashpip install -r requirements.txt- **Natural Language Interface**: Ask "what went wrong?" or "what is EKF?" in plain EnglishSkySense is a sophisticated flight log analysis system with an **intelligent AI Copilot** designed specifically for PX4-based drones. It automatically detects and explains flight anomalies, performance issues, and provides actionable insights through interactive natural language conversations.
+
+# Show all available commands
+
+python main.py --help
+
+
+
+# Analyze a log and generate insights# Set Groq API key- **Hybrid Architecture**: Fast structured queries + contextual explanations
+
+python main.py analyze <log_file.ulg>
+
+export GROQ_API_KEY="your_key_here"
+
+# Interactive copilot (ask questions about your flight)
+
+python main.py copilot <log_file.ulg>- **Legal Knowledge Base**: Built from PX4 docs (CC BY 4.0) and curated content**Key Achievements**:
+
+
+
+# Start web API server# Analyze a flight log
+
+python main.py serve --host 0.0.0.0 --port 8000
+
+python main.py analyze ulogs/your_log.ulg- ✅ **Validated Phase Detection**: 100% validation score on real flight logs
+
+# Set up copilot (first time only - builds knowledge base)
+
+python main.py setup-copilotpython main.py copilot ulogs/your_log.ulg
+
+```
+
+```## Quick Start- ✅ **PX4-Authoritative Logic**: Follows official PX4 best practices
+
+### Interactive Copilot Session
+
+
+
+Once you launch the copilot, you can ask questions naturally:
+
+## Example Queries- ✅ **AI Copilot**: Powered by Groq llama-3.3-70b with RAG
+
+```
+
+You: What went wrong in this flight?
+
+SkySense: ✅ No critical issues detected. Flight duration: 107.1s
+
+          Critical Issues: 0 | Warnings: 0 | Total Insights: 7- "What went wrong in this flight?"```bash- ✅ **Production-Ready**: Comprehensive testing with real `.ulg` files
+
+
+
+You: What is EKF?- "Show me battery issues"
+
+SkySense: EKF (Extended Kalman Filter) is PX4's state estimator that 
+
+          fuses sensor data to estimate vehicle position and attitude.- "What is EKF and why did it spike?"# Install dependencies
+
+
+
+You: Show me battery issues- "Give me a flight summary"
+
+SkySense: No battery sag events detected in this flight.
+
+pip install -r requirements.txt## 🌟 Features
+
+You: exit
+
+```## Architecture
+
+
+
+## Example Queries
+
+
+
+- "What went wrong in this flight?"- **Detectors**: Extract insights from flight logs (JSON format)
+
+- "Show me battery issues"
+
+- "What is EKF and why did it spike?"- **Query Engine**: Fast structured queries on insights# Set Groq API key### 🤖 NEW: AI Copilot
+
+- "Give me a flight summary"
+
+- "How do I fix vibration problems?"- **RAG Engine**: Knowledge retrieval with FAISS + HuggingFace embeddings
+
+
+
+## Architecture- **LLM Router**: Groq-powered classification and response generationexport GROQ_API_KEY="your_key_here"- **Interactive Chat**: Ask questions about your flight in natural language
+
+
+
+- **Detectors**: Extract insights from flight logs (JSON format)
+
+- **Query Engine**: Fast structured queries on insights
+
+- **RAG Engine**: Knowledge retrieval with FAISS + HuggingFace embeddings## Requirements- **Intelligent Routing**: Automatically chooses structured data or RAG knowledge
+
+- **LLM Router**: Groq-powered classification and response generation
+
+
+
+## Requirements
+
+- Python 3.8+# Analyze a flight log- **Groq-Powered**: llama-3.3-70b for fast, accurate responses
+
+- Python 3.8+
+
+- Groq API key- Groq API key
+
+- PX4 .ulg files
+
+- PX4 .ulg filespython main.py process ulogs/your_log.ulg- **Legal Knowledge Base**: All sources properly attributed (PX4 CC BY 4.0)
+
+## License
+
+
+
+MIT
+
+## Licensepython main.py copilot ulogs/your_log.ulg- **Contextual Explanations**: Why problems occurred and how to fix them
+
+
+
+MIT```
+
+**Example Queries**:
+
+## Example Queries```
+
+"Why did battery sag occur?"
+
+- "What went wrong in this flight?""Show me critical events"
+
+- "Show me battery issues""How do I fix vibration issues?"
+
+- "What is EKF and why did it spike?""Is this tracking error normal?"
+
+- "Give me a flight summary"```
+
+
+
+## Architecture[➡️ Full Copilot Documentation](docs/COPILOT.md)
+
+
+
+- **Detectors**: Extract insights from flight logs (JSON format)### Core Insight Detection
+
+- **Query Engine**: Fast structured queries on insights- **Flight Phase Segmentation**: ⭐ PX4-based detection of Idle/Takeoff/Hover/Cruise/Loiter/RTL/Land phases (>95% accuracy)
+
+- **RAG Engine**: Knowledge retrieval with FAISS + HuggingFace embeddings- **Attitude Tracking Errors**: RMS-based detection of persistent control inaccuracy
+
+- **LLM Router**: Groq-powered classification and response generation- **Rate Controller Saturation**: Detection of actuator/control limits causing wobbles
+
 - **Motor Dropout Detection**: Critical fault detection with battery sag correlation
-- **Battery Voltage Sag**: Detection of weak batteries or wiring issues
-- **EKF Innovation Spikes**: Estimator inconsistency from sensor issues
-- **Vibration Analysis**: Mechanical resonance detection using gyro PSD analysis
-- **Flight Timeline**: Mode changes and failsafe event tracking
-- **Performance Summary**: Global KPIs and flight quality assessment
 
-### Technical Specifications
+## Requirements- **Battery Voltage Sag**: Detection of weak batteries or wiring issues
+
+- **EKF Innovation Spikes**: Estimator inconsistency from sensor issues
+
+- Python 3.8+- **Vibration Analysis**: Mechanical resonance detection using gyro PSD analysis
+
+- Groq API key- **Flight Timeline**: Mode changes and failsafe event tracking
+
+- PX4 .ulg files- **Performance Summary**: Global KPIs and flight quality assessment
+
+
+
+## License### Technical Specifications
+
 - **20Hz Signal Processing**: Optimal for flight control dynamics analysis
-- **Raw IMU Analysis**: Native 250-1000Hz processing for vibration detection
+
+MIT- **Raw IMU Analysis**: Native 250-1000Hz processing for vibration detection
 - **Multi-gate Detection**: Sophisticated algorithms with corroboration
 - **Burst Detection**: Persistence-based filtering with debouncing
 - **Phase-aware Analysis**: Context-sensitive insights by flight phase
+- **RAG Architecture**: LangChain + FAISS + HuggingFace embeddings
 
 ### API & Visualization
 - **REST API**: FastAPI-based endpoints for insight retrieval
 - **Focused Plots**: Automatic generation of relevant signal visualizations
-- **Natural Language Queries**: Ask questions about your flight data
+- **AI Copilot CLI**: Interactive command-line interface
 - **JSON Export**: Structured insight data for integration
 
 ## 🚀 Quick Start
+
+> **New to SkySense Copilot?** Check out [QUICKSTART.md](QUICKSTART.md) for a comprehensive guide!
 
 ### Installation
 
@@ -47,8 +257,15 @@ SkySense is a sophisticated flight log analysis system designed specifically for
 git clone <repository-url>
 cd SkySense
 
+# Set up virtual environment (recommended)
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
 # Install dependencies
 pip install -r requirements.txt
+
+# Set up AI Copilot (one-time setup)
+python main.py setup-copilot
 
 # Run basic functionality test
 python tests/test_basic.py

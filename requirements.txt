@@ -20,6 +20,23 @@ python-dateutil>=2.8.0
 tqdm>=4.62.0
 click>=8.0.0
 
+# Copilot - LLM and RAG
+groq>=0.4.0
+langchain>=0.1.0
+langchain-community>=0.0.20
+langchain-groq>=0.0.1
+
+# Copilot - Embeddings and Vector Store
+sentence-transformers>=2.2.0
+faiss-cpu>=1.7.4
+
+# Copilot - CLI Enhancement
+rich>=13.0.0
+
+# Copilot - Web Scraping (optional)
+beautifulsoup4>=4.11.0
+requests>=2.28.0
+
 # Testing
 pytest>=6.2.0
 pytest-asyncio>=0.15.0

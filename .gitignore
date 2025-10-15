@@ -25,6 +25,7 @@ venv/
 ENV/
 env/
 .venv
+.env
 
 # IDE
 .vscode/
@@ -36,8 +37,8 @@ env/
 # Data
 data/insights/*.parquet
 data/insights/*.json
-*.ulg
-ulogs/*.ulg
+
+
 
 # Logs
 *.log
